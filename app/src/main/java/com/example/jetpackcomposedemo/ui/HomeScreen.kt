@@ -1,6 +1,5 @@
 package com.example.jetpackcomposedemo.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,12 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposedemo.R
-import com.example.jetpackcomposedemo.common.ViewPager
 import com.example.jetpackcomposedemo.data.Flowers
 import com.example.jetpackcomposedemo.data.FlowersData
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
 
 @Preview
 @Composable
@@ -71,17 +70,23 @@ fun HomeScreen() {
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun SlidingBanner() {
-    var currentIndex by rememberSaveable { mutableStateOf(0) }
-    ViewPager(
-        Modifier.fillMaxSize(),
-        range = IntRange(0, 4),
-        onPageChange = {
-            Log.d("SlidingBanner", "currentPageIndex >> $it")
-            currentIndex = it
-        },
-    ) {
+    val pagerState = rememberPagerState()
+
+    LaunchedEffect(pagerState) {
+        // Collect from the pager state a snapshotFlow reading the currentPage
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+//            AnalyticsService.sendPageSelectedEvent(page)
+        }
+    }
+
+    HorizontalPager(
+        count = 3,
+        state = pagerState,
+        itemSpacing = 20.dp,
+    ) { page ->
         Image(
             modifier = Modifier
                 .fillMaxWidth()
@@ -91,32 +96,12 @@ private fun SlidingBanner() {
             contentDescription = "sliding_banner_image"
         )
     }
-    PageIndicator(pagesCount = 3, currentPageIndex = currentIndex)
-}
 
-@Composable
-private fun PageIndicator(
-    modifier: Modifier = Modifier,
-    pagesCount: Int,
-    currentPageIndex: Int,
-) {
-    Log.d("PageIndicator", "currentPageIndex >> $currentPageIndex")
-
-    Row(modifier = modifier.wrapContentSize(align = Alignment.Center)) {
-        Log.d("PageIndicator >> ", "pagesCount >> $pagesCount")
-        for (pageIndex in 0 until pagesCount) {
-            val tintColor = if (currentPageIndex == pageIndex) {
-                Color.DarkGray
-            } else {
-                Color.LightGray
-            }
-            Icon(
-                Icons.Filled.FiberManualRecord,
-                tint = tintColor,
-                contentDescription = "page_indicator_icon"
-            )
-        }
-    }
+    HorizontalPagerIndicator(
+        pagerState = pagerState,
+        modifier = Modifier
+            .padding(16.dp),
+    )
 }
 
 @Composable
@@ -150,9 +135,11 @@ fun RoundedCornerIconButton(modifier: Modifier, icon: Int) {
         modifier = modifier
             .background(color = Color.White, shape = RoundedCornerShape(10.dp))
     ) {
-        IconButton(onClick = { }, modifier = Modifier
-            .align(Alignment.Center)
-            .padding(14.dp)) {
+        IconButton(
+            onClick = { }, modifier = Modifier
+                .align(Alignment.Center)
+                .padding(14.dp)
+        ) {
             Image(
                 bitmap = ImageBitmap.imageResource(id = icon),
                 contentDescription = "rounded_corner_icon_button"
