@@ -2,9 +2,9 @@ package com.example.jetpackcomposedemo.ui
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -13,16 +13,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposedemo.R
@@ -30,38 +33,47 @@ import com.example.jetpackcomposedemo.common.ViewPager
 import com.example.jetpackcomposedemo.data.Flowers
 import com.example.jetpackcomposedemo.data.FlowersData
 
+@Preview
 @Composable
 fun HomeScreen() {
-    ScrollableColumn(
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SlidingBanner()
-        CategoryView()
-        Row(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Popular Items",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontFamily = fontFamily(font(R.font.helvetica_neue_bold))
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "View All",
-                style = MaterialTheme.typography.subtitle2.copy(color = colorPrimary)
-            )
+        item {
+            SlidingBanner()
         }
-        PopularFlowersList()
+        item {
+            CategoryView()
+        }
+        item {
+            Row(
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Popular Items",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily(Font(R.font.helvetica_neue_bold))
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "View All",
+                    style = MaterialTheme.typography.subtitle2.copy(color = colorPrimary)
+                )
+            }
+        }
+        item {
+            PopularFlowersList()
+        }
     }
 }
 
 @Composable
 private fun SlidingBanner() {
-    var currentIndex by savedInstanceState { 0 }
+    var currentIndex by rememberSaveable { mutableStateOf(0) }
     ViewPager(
         Modifier.fillMaxSize(),
         range = IntRange(0, 4),
@@ -71,9 +83,12 @@ private fun SlidingBanner() {
         },
     ) {
         Image(
-            modifier = Modifier.fillMaxWidth().padding(20.dp),
-            bitmap = imageResource(id = R.drawable.ic_sale_banner),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            bitmap = ImageBitmap.imageResource(id = R.drawable.ic_sale_banner),
             contentScale = ContentScale.FillWidth,
+            contentDescription = "sliding_banner_image"
         )
     }
     PageIndicator(pagesCount = 3, currentPageIndex = currentIndex)
@@ -97,7 +112,8 @@ private fun PageIndicator(
             }
             Icon(
                 Icons.Filled.FiberManualRecord,
-                tint = tintColor
+                tint = tintColor,
+                contentDescription = "page_indicator_icon"
             )
         }
     }
@@ -134,9 +150,12 @@ fun RoundedCornerIconButton(modifier: Modifier, icon: Int) {
         modifier = modifier
             .background(color = Color.White, shape = RoundedCornerShape(10.dp))
     ) {
-        IconButton(onClick = { }, modifier = Modifier.align(Alignment.Center).padding(14.dp)) {
+        IconButton(onClick = { }, modifier = Modifier
+            .align(Alignment.Center)
+            .padding(14.dp)) {
             Image(
-                bitmap = imageResource(id = icon)
+                bitmap = ImageBitmap.imageResource(id = icon),
+                contentDescription = "rounded_corner_icon_button"
             )
         }
     }
@@ -147,8 +166,8 @@ private fun PopularFlowersList() {
     LazyRow(
         modifier = Modifier.fillMaxWidth()
     ) {
-        items(FlowersData.list) { item ->
-            FlowerCard(item)
+        items(FlowersData.list.size) {
+            FlowerCard(FlowersData.list[it])
         }
     }
 }
@@ -158,15 +177,20 @@ private fun FlowerCard(flower: Flowers) {
     Card(
         shape = RoundedCornerShape(14.dp),
         backgroundColor = Color.White,
-        modifier = Modifier.padding(10.dp).width(180.dp)
+        modifier = Modifier
+            .padding(10.dp)
+            .width(180.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
         ) {
 
             Image(
                 modifier = Modifier.size(140.dp),
-                bitmap = imageResource(id = flower.image)
+                bitmap = ImageBitmap.imageResource(id = flower.image),
+                contentDescription = "flower_card"
             )
             Row(modifier = Modifier.padding(top = 20.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
@@ -175,7 +199,7 @@ private fun FlowerCard(flower: Flowers) {
                         style = TextStyle(
                             color = gray,
                             fontSize = 16.sp,
-                            fontFamily = fontFamily(font(R.font.helvetica_neue_medium))
+                            fontFamily = FontFamily(Font(R.font.helvetica_neue_medium))
                         )
                     )
                     Text(
@@ -183,7 +207,7 @@ private fun FlowerCard(flower: Flowers) {
                         style = TextStyle(
                             color = colorPrimary,
                             fontSize = 16.sp,
-                            fontFamily = fontFamily(font(R.font.helvetica_neue_medium))
+                            fontFamily = FontFamily(Font(R.font.helvetica_neue_medium))
                         )
                     )
                 }
@@ -194,7 +218,12 @@ private fun FlowerCard(flower: Flowers) {
                             shape = RoundedCornerShape(10.dp)
                         )
                 ) {
-                    Icon(Icons.Default.Add, tint = Color.White, modifier = Modifier.padding(10.dp))
+                    Icon(
+                        Icons.Default.Add,
+                        tint = Color.White,
+                        modifier = Modifier.padding(10.dp),
+                        contentDescription = "flower_card_icon"
+                    )
                 }
             }
         }

@@ -16,11 +16,12 @@
 
 package com.example.jetpackcomposedemo.navigation
 
+//import androidx.compose.runtime.savedinstancestate.listSaver
 import android.os.Parcelable
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.runtime.*
-import androidx.compose.runtime.savedinstancestate.listSaver
+import androidx.compose.runtime.saveable.listSaver
 
 /**
  * A simple navigator which maintains a back stack.
@@ -83,13 +84,14 @@ fun backHandler(
             }
         }
     }
-    onCommit(enabled) {
+//    onCommit(enabled) {
+    LaunchedEffect((enabled)) {
         backCallback.isEnabled = enabled
     }
 
     val dispatcher = BackDispatcherAmbient.current
-    onCommit(backCallback) {
-        dispatcher.addCallback(backCallback)
+    dispatcher.addCallback(backCallback)
+    DisposableEffect(backCallback) {
         onDispose {
             backCallback.remove()
         }
@@ -100,6 +102,7 @@ fun backHandler(
  * An [androidx.compose.runtime.Ambient] providing the current [OnBackPressedDispatcher]. You must
  * [provide][androidx.compose.runtime.Providers] a value before use.
  */
-internal val BackDispatcherAmbient = staticAmbientOf<OnBackPressedDispatcher> {
+//internal val BackDispatcherAmbient = staticAmbientOf<OnBackPressedDispatcher> {
+internal val BackDispatcherAmbient = compositionLocalOf<OnBackPressedDispatcher> {
     error("No Back Dispatcher provided")
 }

@@ -1,5 +1,6 @@
 package com.example.jetpackcomposedemo.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,14 +16,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposedemo.R
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun DashboardScreen() {
     val selectedIndex = remember { mutableStateOf(0) }
@@ -31,11 +34,11 @@ fun DashboardScreen() {
             topBar = {
                 CustomTopAppBar()
             },
-            bodyContent = {
+            content = {
                 Surface(modifier = Modifier.fillMaxSize(), color = colorPrimary) {
                     Card(
                         backgroundColor = ghost_white,
-                        shape = RoundedCornerShape(topLeft = 40.dp, topRight = 40.dp),
+                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         Box(modifier = Modifier.padding(bottom = 96.dp)) {
@@ -57,8 +60,9 @@ fun DashboardScreen() {
             },
             bottomBar = {
                 CustomBottomBar(selectedIndex = selectedIndex)
-            }
-        )
+            },
+
+            )
 
     }
 }
@@ -76,7 +80,7 @@ fun CustomTopAppBar() {
                     color = Color.White,
                     style = TextStyle(
                         fontStyle = FontStyle.Italic,
-                        fontFamily = fontFamily(font(R.font.josefin_sans_semibold_italic)),
+                        fontFamily = FontFamily(Font((R.font.josefin_sans_semibold_italic))),
                         fontSize = 22.sp
                     )
                 )
@@ -85,7 +89,8 @@ fun CustomTopAppBar() {
                     onClick = { }
                 ) {
                     Image(
-                        imageResource(id = R.drawable.ic_search),
+                        painter = painterResource(id = R.drawable.ic_search),
+                        contentDescription = "dashboard_search"
                     )
                 }
             }
@@ -102,7 +107,10 @@ fun CustomBottomBar(selectedIndex: MutableState<Int>) {
     Card(
         elevation = 0.dp,
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth().padding(16.dp).height(64.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .height(64.dp)
     ) {
         BottomNavigation(backgroundColor = Color.White) {
             listItems.forEachIndexed { index, label ->
@@ -111,22 +119,34 @@ fun CustomBottomBar(selectedIndex: MutableState<Int>) {
                     icon = {
                         when (index) {
                             0 -> {
-                                TabIcons(imageResource(id = R.drawable.ic_home), isSelected)
+                                TabIcons(
+                                    ImageBitmap.imageResource(id = R.drawable.ic_home),
+                                    isSelected
+                                )
                             }
                             1 -> {
-                                TabIcons(imageResource(id = R.drawable.ic_location), isSelected)
+                                TabIcons(
+                                    ImageBitmap.imageResource(id = R.drawable.ic_location),
+                                    isSelected
+                                )
                             }
                             2 -> {
-                                TabIcons(imageResource(id = R.drawable.ic_cart), isSelected)
+                                TabIcons(
+                                    ImageBitmap.imageResource(id = R.drawable.ic_cart),
+                                    isSelected
+                                )
                             }
                             3 -> {
-                                TabIcons(imageResource(id = R.drawable.ic_profile), isSelected)
+                                TabIcons(
+                                    ImageBitmap.imageResource(id = R.drawable.ic_profile),
+                                    isSelected
+                                )
                             }
                         }
                     },
                     selected = isSelected,
                     onClick = { selectedIndex.value = index },
-                    alwaysShowLabels = false
+                    alwaysShowLabel = false
                 )
             }
         }
@@ -141,12 +161,14 @@ fun TabIcons(icon: ImageBitmap, isTintColor: Boolean) {
             bitmap = icon,
             colorFilter = ColorFilter.tint(colorPrimary),
             contentScale = ContentScale.Fit,
+            contentDescription = "tb_icon_if"
         )
     } else {
         Image(
             modifier = Modifier.wrapContentSize(),
             bitmap = icon,
             contentScale = ContentScale.Fit,
+            contentDescription = "tb_icon_else"
         )
     }
 }

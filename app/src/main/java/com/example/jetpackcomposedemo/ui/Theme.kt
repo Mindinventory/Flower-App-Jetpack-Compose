@@ -1,6 +1,7 @@
 package com.example.jetpackcomposedemo.ui
 
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.shapes
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 

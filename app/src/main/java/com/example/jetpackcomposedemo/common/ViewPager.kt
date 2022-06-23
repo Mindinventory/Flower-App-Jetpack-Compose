@@ -1,21 +1,28 @@
 package com.example.jetpackcomposedemo.common
 
-import androidx.compose.animation.animatedFloat
-import androidx.compose.animation.core.AnimationEndReason
-import androidx.compose.animation.core.OnAnimationEnd
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.animation.FlingConfig
-import androidx.compose.foundation.animation.fling
+//import androidx.compose.animation.animatedFloat
+//import androidx.compose.animation.core.OnAnimationEnd
+//import androidx.compose.foundation.animation.FlingConfig
+//import androidx.compose.foundation.animation.fling
+//import androidx.compose.ui.draw.drawOpacity
+//import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+//import androidx.compose.ui.layout.WithConstraints
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -119,19 +126,33 @@ fun ViewPager(
         throw IllegalArgumentException("The start page supplied was not in the given range")
     }
 
-    Box {
-        WithConstraints {
-            val alphas = remember { mutableListOf(1f, 1f, 1f) }
+    val coroutineScope = rememberCoroutineScope()
+    val splineDec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
 
+    Box {
+        BoxWithConstraints {
+            val alphas = remember { mutableListOf(1f, 1f, 1f) }
             val index = remember { mutableStateOf(startPage) }
 
-            val width = constraints.maxWidth.toFloat()
-            val offset = animatedFloat(width)
-            offset.setBounds(0f, 2 * width)
+            var width = constraints.maxWidth.toFloat()
+//            val offset = animatedFloat(width)
+//            offset.setBounds(0f, 2 * width)
+            /*var offset by remember {  //Current position        //try 1
+                mutableStateOf(Offset.Zero)
+            }
+            offset = Offset(0f, 2 * width)*/
+            var offset = remember {    //try 2 - Animatable
+                Animatable(0f)
+            }
+//            offset.setBounds(0f, 2 * width)
 
             val anchors = remember { listOf(0f, width, 2 * width) }
 
-            val flingConfig = FlingConfig(
+//            val flingConfig = FlingConfig(
+//                anchors,
+//                animationSpec = SpringSpec(dampingRatio = 0.8f, stiffness = 1000f),
+//            )
+            /*val flingConfig = FlingConfig(
                 anchors,
                 animationSpec = SpringSpec(dampingRatio = 0.8f, stiffness = 1000f),
             )
@@ -143,52 +164,88 @@ fun ViewPager(
                         index.value -= 1
                     }
                 }
-            }
+            }*/
 
             fun indexCheck() {
                 if (range != null) {
                     when (index.value) {
-                        range.first -> offset.setBounds(width, 2 * width)
-                        range.last -> offset.setBounds(0f, width)
-                        else -> offset.setBounds(0f, 2 * width)
+                        range.first -> Offset(width, 2 * width)
+                        range.last -> Offset(0f, width)
+                        else -> Offset(0f, 2 * width)
                     }
                 }
             }
 
-            onDispose {
-                offset.snapTo(width)
+//            onDispose {
+//                // snapTo -> Sets the current value to the target value immediately, without any animation.
+//                width.snapTo(width)
+//            }
+
+            DisposableEffect(index.value) {
+                onDispose {
+                    coroutineScope.launch {
+                        offset.snapTo(width)
+//                          width = (width)
+                    }
+                }
             }
 
-            onCommit(index.value) {
+//            onCommit(index.value) {
+            LaunchedEffect((index.value)) {
                 indexCheck()
-               /* if (range != null) {
-                    if (index.value < range.first) {
-                        index.value = range.first
-                    } else if (index.value > range.last) {
-                        index.value = range.last
-                    }
-                }*/
+                /* if (range != null) {
+                     if (index.value < range.first) {
+                         index.value = range.first
+                     } else if (index.value > range.last) {
+                         index.value = range.last
+                     }
+                 }*/
                 onPageChange(index.value)
             }
 
-            val increment = { increment: Int ->
-                offset.animateTo(
-                    width * sign(increment.toDouble()).toFloat() + width,
-                    onEnd = { animationEndReason, _ ->
-                        if (animationEndReason != AnimationEndReason.Interrupted) {
-                            index.value += increment
+            val increment: (Int) -> Unit = { increment: Int ->
+                coroutineScope.launch {
+                    offset.animateTo(
+                        width * sign(increment.toDouble()).toFloat() + width,
+                        /*onEnd = { animationEndReason, _ ->        //????????????????????????????????????????
+                            if (animationEndReason != AnimationEndReason.Interrupted) {
+                                index.value += increment
                             offset.snapTo(width)
-                        }
-                    })
+//                                offset = (width)
+                            }
+                        }*/
+                    )
+                }
             }
+
+//            val draggable = modifier.draggable(
+//                orientation = Orientation.Horizontal,
+//                onDrag = {
+//                    val old = offset.value
+//                    offset.snapTo(offset.value - (it * 0.7f))
+//                    offset.value - old
+//                }, onDragStopped = { offset.fling(-(it * 0.7f), flingConfig, onAnimationEnd) },
+//                enabled = enabled
+//            )
+
 
             val draggable = modifier.draggable(
                 orientation = Orientation.Horizontal,
-                onDrag = {
+                state = DraggableState { draggedFloat ->
+                    width = draggedFloat
+                },
+                onDragStarted = {
                     val old = offset.value
-                    offset.snapTo(offset.value - (it * 0.7f))
+                    offset.snapTo(old - (width * 0.7f))
                     offset.value - old
-                }, onDragStopped = { offset.fling(-(it * 0.7f), flingConfig, onAnimationEnd) },
+                },
+                onDragStopped = {
+                    offset.animateDecay(
+                        -(it * 0.7f)
+//                    , flingConfig, onAnimationEnd
+                        , animationSpec = splineDec
+                    )
+                },
                 enabled = enabled
             )
 
@@ -196,7 +253,12 @@ fun ViewPager(
                 Layout(
                     content = {
                         for (x in -1..1) {
-                            Box(Modifier.layoutId(x + 1).drawOpacity(alphas[x + 1])) {
+//                            Box(Modifier.layoutId(x + 1).drawOpacity(alphas[x + 1])) {
+                            Box(
+                                Modifier
+                                    .layoutId(x + 1)
+                                    .alpha(alphas[x + 1])
+                            ) {
                                 screenItem(
                                     ViewPagerImpl(index.value + x, increment)
                                 )
@@ -211,6 +273,11 @@ fun ViewPager(
                     layout(constraints.maxWidth, height) {
                         placeables.forEach { (placeable, tag) ->
                             if (tag is Int) {
+//                                placeable.place(
+//                                    x = (constraints.maxWidth * tag)
+//                                            - offset.value.toInt(),
+//                                    y = 0
+//                                )
                                 placeable.place(
                                     x = (constraints.maxWidth * tag)
                                             - offset.value.toInt(),
