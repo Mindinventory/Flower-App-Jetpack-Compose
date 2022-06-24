@@ -2,8 +2,9 @@ package com.example.jetpackcomposedemo.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -15,162 +16,175 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.annotatedString
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.ui.tooling.preview.Preview
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.jetpackcomposedemo.R
 
 @Composable
 fun LoginScreen(openDashboard: () -> Unit) {
     JetPackComposeDemoTheme {
-        ScrollableColumn(
+        LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ConstraintLayout {
-                val (image, loginForm) = createRefs()
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.height(280.dp).constrainAs(image) {
-                        top.linkTo(loginForm.top)
-                        bottom.linkTo(loginForm.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }) {
-                    HeaderView()
-                }
-                Card(
-                    shape = RoundedCornerShape(topLeft = 40.dp, topRight = 40.dp),
-                    backgroundColor = ghost_white,
-                    modifier = Modifier.fillMaxSize().padding(top = 100.dp)
-                        .constrainAs(loginForm) {
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                            .padding(30.dp)
+            item {
+                ConstraintLayout {
+                    val (image, loginForm) = createRefs()
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .height(280.dp)
+                            .constrainAs(image) {
+                                top.linkTo(loginForm.top)
+                                bottom.linkTo(loginForm.top)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            }) {
+                        HeaderView()
+                    }
+                    Card(
+                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                        backgroundColor = ghost_white,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 100.dp)
+                            .constrainAs(loginForm) {
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            },
                     ) {
-
-                        val loginText = "Log in to your account."
-                        val loginWord = "Log in"
-                        val loginAnnotatedString = annotatedString {
-                            append(loginText)
-                            addStyle(
-                                style = SpanStyle(
-                                    color = dark_gray,
-                                    fontFamily = fontFamily(font(R.font.helvetica_neue_regular))
-                                ),
-                                start = 0,
-                                end = loginText.length
-                            )
-                            addStyle(
-                                style = SpanStyle(
-                                    color = colorPrimary,
-                                    fontFamily = fontFamily(font(R.font.helvetica_neue_medium))
-                                ),
-                                start = 0,
-                                end = loginWord.length
-                            )
-                        }
-
-                        Text(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(top = 10.dp, bottom = 20.dp),
-                            text = loginAnnotatedString,
-                            textAlign = TextAlign.Center,
-                            fontSize = 22.sp
-                        )
-                        Text(
-                            text = "Email Address",
-                            style = MaterialTheme.typography.subtitle1.copy(color = gray),
-                            modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)
-                        )
-
-                        CustomStyleTextField(
-                            "Email Address",
-                            R.drawable.ic_email,
-                            KeyboardType.Email,
-                            VisualTransformation.None
-                        )
-
-                        Text(
-                            text = "Password",
-                            style = MaterialTheme.typography.subtitle1.copy(color = gray),
-                            modifier = Modifier.padding(bottom = 10.dp, top = 20.dp)
-                        )
-                        CustomStyleTextField(
-                            "Password",
-                            R.drawable.ic_password,
-                            KeyboardType.Password,
-                            PasswordVisualTransformation()
-                        )
-
-                        Text(
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                            text = "Forgot Password",
-                            textAlign = TextAlign.End,
-                            style = MaterialTheme.typography.subtitle2.copy(color = colorPrimary)
-                        )
-                        Button(
-                            onClick = openDashboard,
-                            modifier = Modifier.padding(top = 30.dp, bottom = 34.dp)
-                                .align(Alignment.CenterHorizontally)
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(30.dp)
                         ) {
+
+                            val loginText = "Log in to your account."
+                            val loginWord = "Log in"
+                            val loginAnnotatedString = buildAnnotatedString {
+                                append(loginText)
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = dark_gray,
+                                        fontFamily = FontFamily(Font(R.font.helvetica_neue_regular))
+                                    ),
+                                    start = 0,
+                                    end = loginText.length
+                                )
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = colorPrimary,
+                                        fontFamily = FontFamily(Font(R.font.helvetica_neue_medium))
+                                    ),
+                                    start = 0,
+                                    end = loginWord.length
+                                )
+                            }
+
                             Text(
-                                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
-                                text = "Login",
-                                color = Color.White,
-                                style = MaterialTheme.typography.button
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 10.dp, bottom = 20.dp),
+                                text = loginAnnotatedString,
+                                textAlign = TextAlign.Center,
+                                fontSize = 22.sp,
+                            )
+                            Text(
+                                text = "Email Address",
+                                style = MaterialTheme.typography.subtitle1.copy(color = gray),
+                                modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)
+                            )
+
+                            CustomStyleTextField(
+                                "Email Address",
+                                R.drawable.ic_email,
+                                KeyboardType.Email,
+                                VisualTransformation.None
+                            )
+
+                            Text(
+                                text = "Password",
+                                style = MaterialTheme.typography.subtitle1.copy(color = gray),
+                                modifier = Modifier.padding(bottom = 10.dp, top = 20.dp)
+                            )
+                            CustomStyleTextField(
+                                "Password",
+                                R.drawable.ic_password,
+                                KeyboardType.Password,
+                                PasswordVisualTransformation()
+                            )
+
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 10.dp),
+                                text = "Forgot Password",
+                                textAlign = TextAlign.End,
+                                style = MaterialTheme.typography.subtitle2.copy(color = colorPrimary)
+                            )
+                            Button(
+                                onClick = openDashboard,
+                                modifier = Modifier
+                                    .padding(top = 30.dp, bottom = 34.dp)
+                                    .align(Alignment.CenterHorizontally)
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                                    text = "Login",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.button
+                                )
+                            }
+
+                            val signInText = "Don't have an account? Sign In"
+                            val signInWord = "Sign In"
+                            val signInAnnotatedString = buildAnnotatedString {
+                                append(signInText)
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = light_gray,
+                                        fontFamily = FontFamily(Font(R.font.helvetica_neue_regular))
+                                    ),
+                                    start = 0,
+                                    end = signInText.length
+                                )
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = colorPrimary,
+                                        fontFamily = FontFamily(Font(R.font.helvetica_neue_medium))
+                                    ),
+                                    start = signInText.indexOf(signInWord),
+                                    end = signInText.length
+                                )
+                            }
+
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = signInAnnotatedString,
+                                style = TextStyle(
+                                    fontSize = 14.sp
+                                ),
+                                textAlign = TextAlign.Center
                             )
                         }
-
-                        val signInText = "Don't have an account? Sign In"
-                        val signInWord = "Sign In"
-                        val signInAnnotatedString = annotatedString {
-                            append(signInText)
-                            addStyle(
-                                style = SpanStyle(
-                                    color = light_gray,
-                                    fontFamily = fontFamily(font(R.font.helvetica_neue_regular))
-                                ),
-                                start = 0,
-                                end = signInText.length
-                            )
-                            addStyle(
-                                style = SpanStyle(
-                                    color = colorPrimary,
-                                    fontFamily = fontFamily(font(R.font.helvetica_neue_medium))
-                                ),
-                                start = signInText.indexOf(signInWord),
-                                end = signInText.length
-                            )
-                        }
-
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = signInAnnotatedString,
-                            style = TextStyle(
-                                fontSize = 14.sp
-                            ),
-                            textAlign = TextAlign.Center
-                        )
                     }
                 }
             }
@@ -186,7 +200,57 @@ fun CustomStyleTextField(
     visualTransformation: VisualTransformation
 ) {
     val textState = remember { mutableStateOf(TextFieldValue()) }
-    TextField(
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        value = textState.value,
+        onValueChange = { valueChanged ->
+            textState.value = valueChanged
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        placeholder = { Text(text = placeHolder) },
+        leadingIcon = {
+            Row(
+                modifier = Modifier.wrapContentWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                content = {
+                    Image(
+                        modifier = Modifier
+                            .padding(start = 10.dp, end = 10.dp)
+                            .size(18.dp),
+                        bitmap = ImageBitmap.imageResource(id = leadingIconId),  // material icon
+                        colorFilter = ColorFilter.tint(colorPrimary),
+                        contentDescription = "custom_text_field"
+                    )
+                    Canvas(
+                        modifier = Modifier.height(24.dp)
+                    ) {
+                        // Allows you to draw a line between two points (p1 & p2) on the canvas.
+                        drawLine(
+                            color = Color.LightGray,
+                            start = Offset(0f, 0f),
+                            end = Offset(0f, size.height),
+                            strokeWidth = 2.0F
+                        )
+                    }
+                }
+            )
+        },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = colorPrimary,
+            unfocusedBorderColor = Color.Transparent,
+            focusedLabelColor = Color.White,
+            trailingIconColor = Color.White,
+//            disabledTextColor = NaviBlue
+        ),
+        shape = RoundedCornerShape(10.dp),
+        textStyle = TextStyle(color = Color.Black, fontSize = 16.sp),
+        visualTransformation = visualTransformation
+    )
+
+    /*OutlinedTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         value = textState.value,
         onValueChange = { valueChanged ->
@@ -199,12 +263,15 @@ fun CustomStyleTextField(
                 verticalAlignment = Alignment.CenterVertically,
                 content = {
                     Image(
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp).size(18.dp),
-                        bitmap = imageResource(id = leadingIconId),  // material icon
+                        modifier = Modifier
+                            .padding(start = 10.dp, end = 10.dp)
+                            .size(18.dp),
+                        bitmap = ImageBitmap.imageResource(id = leadingIconId),  // material icon
                         colorFilter = ColorFilter.tint(colorPrimary),
+                        contentDescription = "custom_text_field"
                     )
                     Canvas(
-                        modifier = Modifier.preferredHeight(24.dp)
+                        modifier = Modifier.height(24.dp)
                     ) {
                         // Allows you to draw a line between two points (p1 & p2) on the canvas.
                         drawLine(
@@ -224,7 +291,7 @@ fun CustomStyleTextField(
         backgroundColor = Color.White,
         textStyle = TextStyle(color = Color.Black, fontSize = 16.sp),
         visualTransformation = visualTransformation
-    )
+    )*/
     /* TextField(
          value = textState.value,
          onValueChange = { valueChanged ->
@@ -269,8 +336,9 @@ fun CustomStyleTextField(
 fun HeaderView() {
     Image(
         modifier = Modifier.fillMaxSize(),
-        bitmap = imageResource(id = R.drawable.login_bg),
-        contentScale = ContentScale.FillWidth
+        bitmap = ImageBitmap.imageResource(id = R.drawable.login_bg),
+        contentScale = ContentScale.FillWidth,
+        contentDescription = "header_view_login_bg"
     )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -278,14 +346,15 @@ fun HeaderView() {
     ) {
         Image(
             modifier = Modifier.wrapContentWidth(),
-            bitmap = imageResource(id = R.drawable.flower_logo),
+            bitmap = ImageBitmap.imageResource(id = R.drawable.flower_logo),
+            contentDescription = "header_view_flower_logo"
         )
         Text(
             text = "FloraGoGo",
             color = Color.White,
             style = TextStyle(
                 fontSize = 40.sp,
-                fontFamily = fontFamily(font(R.font.josefin_sans_semibold_italic)),
+                fontFamily = FontFamily(Font(R.font.josefin_sans_semibold_italic)),
                 letterSpacing = 2.sp
             )
         )

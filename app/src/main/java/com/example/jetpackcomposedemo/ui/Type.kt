@@ -2,10 +2,9 @@ package com.example.jetpackcomposedemo.ui
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposedemo.R
 
@@ -18,15 +17,15 @@ val typography = Typography(
     ),
     button = TextStyle(
         fontSize = 18.sp,
-        fontFamily = fontFamily(font(R.font.helvetica_neue_bold))
+        fontFamily = FontFamily(Font(R.font.helvetica_neue_bold))
     ),
     subtitle1 = TextStyle(
         fontSize = 14.sp,
-        fontFamily = fontFamily(font(R.font.helvetica_neue_regular))
+        fontFamily = FontFamily(Font(R.font.helvetica_neue_regular))
     ),
     subtitle2 = TextStyle(
         fontSize = 12.sp,
-        fontFamily = fontFamily(font(R.font.helvetica_neue_regular))
+        fontFamily = FontFamily(Font(R.font.helvetica_neue_regular))
     )
     /* Other default text styles to override
     button = TextStyle(

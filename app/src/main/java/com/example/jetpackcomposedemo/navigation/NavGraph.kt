@@ -17,7 +17,7 @@
 package com.example.jetpackcomposedemo.navigation
 
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.navigate
+//import androidx.navigation.compose.navigate
 import com.example.jetpackcomposedemo.navigation.Destination.DashBoard
 
 /**
